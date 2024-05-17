@@ -15,3 +15,11 @@ export const correctUser: UserDataType = {
   password: '#Pass123',
   confirmPassword: '#Pass123',
 };
+
+export const existUser: UserDataType = {
+  email: 'existinguser@gmail.com',
+  firstName: 'exist',
+  lastName: 'user',
+  password: '#Pass123',
+  confirmPassword: '#Pass123',
+};

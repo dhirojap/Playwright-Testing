@@ -20,12 +20,6 @@ test('loginSuccess', async ({ page }) => {
   await page.goto('http://127.0.0.1:8000');
   await page
     .getByRole('navigation')
-    .getByRole('link', { name: 'Register', exact: true })
-    .click();
-  await register(page, correctUser);
-
-  await page
-    .getByRole('navigation')
     .getByRole('link', { name: 'Login', exact: true })
     .click();
   await page.locator('#login-email').fill('newuser1@gmail.com');
@@ -41,7 +35,7 @@ test('loginAccountNotFound', async ({ page }) => {
     .getByRole('navigation')
     .getByRole('link', { name: 'Login', exact: true })
     .click();
-  await page.locator('#login-email').fill('newuser1@gmail.com');
+  await page.locator('#login-email').fill('notfound@gmail.com');
   await page.locator('#login-password').fill('#Pass123');
   await page.getByRole('button', { name: 'Login', exact: true }).click();
 

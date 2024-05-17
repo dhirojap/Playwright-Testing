@@ -4,11 +4,6 @@ import { correctUser } from './__mocks__/user';
 
 async function goToProfile(page: Page) {
   await page.goto('http://127.0.0.1:8000');
-  await page
-    .getByRole('navigation')
-    .getByRole('link', { name: 'Register', exact: true })
-    .click();
-  await register(page, correctUser);
 
   await page
     .getByRole('navigation')
@@ -19,26 +14,6 @@ async function goToProfile(page: Page) {
   await page.getByRole('button', { name: 'Login' }).click();
 }
 
-test('editUsernameSuccess', async ({ page }) => {
-  await goToProfile(page);
-
-  await page.getByPlaceholder('newuser', { exact: true }).fill('newuser1');
-  await page.getByRole('button', { name: 'Update', exact: true }).click();
-  await expect(page.getByText('Profile updated successfully!')).toBeVisible();
-  await expect(
-    page.getByPlaceholder('newuser1', { exact: true })
-  ).toBeVisible();
-});
-
-test('editUsernameExists', async ({ page }) => {
-  await goToProfile(page);
-
-  await page.getByPlaceholder('newuser', { exact: true }).fill('newuser');
-  await page.getByRole('button', { name: 'Update', exact: true }).click();
-
-  await expect(page.getByText('This username has already')).toBeVisible();
-});
-
 test('editUsernameFailed', async ({ page }) => {
   await goToProfile(page);
 
@@ -48,29 +23,26 @@ test('editUsernameFailed', async ({ page }) => {
   await expect(page.getByText('Your username must not')).toBeVisible();
 });
 
-test('editEmailSuccess', async ({ page }) => {
+test('editUsernameExists', async ({ page }) => {
   await goToProfile(page);
 
-  await page
-    .getByPlaceholder('newuser1@gmail.com', { exact: true })
-    .fill('update@gmail.com');
+  await page.getByPlaceholder('newuser', { exact: true }).fill('existuser');
   await page.getByRole('button', { name: 'Update', exact: true }).click();
 
-  await expect(page.getByText('Profile updated successfully!')).toBeVisible();
   await expect(
-    page.getByPlaceholder('update@gmail.com', { exact: true })
+    page.getByText('This username has already been taken!')
   ).toBeVisible();
 });
 
-test('editEmailExists', async ({ page }) => {
+test('editUsernameSuccess', async ({ page }) => {
   await goToProfile(page);
 
-  await page
-    .getByPlaceholder('newuser1@gmail.com', { exact: true })
-    .fill('newuser1@gmail.com');
+  await page.getByPlaceholder('newuser', { exact: true }).fill('newuser1');
   await page.getByRole('button', { name: 'Update', exact: true }).click();
-
-  await expect(page.getByText('This email has already')).toBeVisible();
+  await expect(page.getByText('Profile updated successfully!')).toBeVisible();
+  await expect(
+    page.getByPlaceholder('newuser1', { exact: true })
+  ).toBeVisible();
 });
 
 test('editEmailFailed', async ({ page }) => {
@@ -84,15 +56,16 @@ test('editEmailFailed', async ({ page }) => {
   await expect(page.getByText('Please enter a valid email')).toBeVisible();
 });
 
-test('editFirstNameSuccess', async ({ page }) => {
+test('editEmailExists', async ({ page }) => {
   await goToProfile(page);
 
-  await page.getByPlaceholder('new', { exact: true }).fill('updatefname');
+  await page
+    .getByPlaceholder('newuser1@gmail.com', { exact: true })
+    .fill('existinguser@gmail.com');
   await page.getByRole('button', { name: 'Update', exact: true }).click();
 
-  await expect(page.getByText('Profile updated successfully!')).toBeVisible();
   await expect(
-    page.getByPlaceholder('updatefname', { exact: true })
+    page.getByText('This email has already been taken!')
   ).toBeVisible();
 });
 
@@ -107,15 +80,15 @@ test('editFirstNameFailed', async ({ page }) => {
   ).toBeVisible();
 });
 
-test('editLastNameSuccess', async ({ page }) => {
+test('editFirstNameSuccess', async ({ page }) => {
   await goToProfile(page);
 
-  await page.getByPlaceholder('user', { exact: true }).fill('updatelname');
+  await page.getByPlaceholder('new', { exact: true }).fill('updatefname');
   await page.getByRole('button', { name: 'Update', exact: true }).click();
 
   await expect(page.getByText('Profile updated successfully!')).toBeVisible();
   await expect(
-    page.getByPlaceholder('updatelname', { exact: true })
+    page.getByPlaceholder('updatefname', { exact: true })
   ).toBeVisible();
 });
 
@@ -130,15 +103,16 @@ test('editLastNameFailed', async ({ page }) => {
   ).toBeVisible();
 });
 
-test('editAvatarSuccess', async ({ page }) => {
+test('editLastNameSuccess', async ({ page }) => {
   await goToProfile(page);
 
-  await page
-    .getByLabel('Avatar', { exact: true })
-    .setInputFiles('./assets/avatar.jpg');
+  await page.getByPlaceholder('user', { exact: true }).fill('updatelname');
   await page.getByRole('button', { name: 'Update', exact: true }).click();
 
   await expect(page.getByText('Profile updated successfully!')).toBeVisible();
+  await expect(
+    page.getByPlaceholder('updatelname', { exact: true })
+  ).toBeVisible();
 });
 
 test('editAvatarFailed', async ({ page }) => {
@@ -156,18 +130,41 @@ test('editAvatarFailed', async ({ page }) => {
   ).toBeVisible();
 });
 
-test('editPasswordSuccess', async ({ page }) => {
+test('editAvatarSuccess', async ({ page }) => {
+  await goToProfile(page);
+
+  await page
+    .getByLabel('Avatar', { exact: true })
+    .setInputFiles('./assets/avatar.jpg');
+  await page.getByRole('button', { name: 'Update', exact: true }).click();
+
+  await expect(page.getByText('Profile updated successfully!')).toBeVisible();
+});
+
+test('editPasswordFailed', async ({ page }) => {
   await goToProfile(page);
 
   await page
     .getByRole('button', { name: 'Change Password', exact: true })
     .click();
-  await page.getByLabel('Password').fill('#Pass321');
+  await page.getByLabel('Password').fill('wfw');
   await page.getByRole('button', { name: 'Update', exact: true }).click();
-  await page.locator('#confirm-change-password').fill('#Pass123');
+
+  await expect(page.getByText('Password must contain at least')).toBeVisible();
+});
+
+test('editPasswordVerifyFailed', async ({ page }) => {
+  await goToProfile(page);
+
+  await page
+    .getByRole('button', { name: 'Change Password', exact: true })
+    .click();
+  await page.getByLabel('Password').fill('#Pass123');
+  await page.getByRole('button', { name: 'Update', exact: true }).click();
+  await page.locator('#confirm-change-password').fill('wfw');
   await page.getByRole('button', { name: 'Submit', exact: true }).click();
 
-  await expect(page.getByText('Password changed successfully!')).toBeVisible();
+  await expect(page.getByText('Password must contain at least')).toBeVisible();
 });
 
 test('editPasswordSame', async ({ page }) => {
@@ -198,28 +195,26 @@ test('editPasswordWrong', async ({ page }) => {
   await expect(page.getByText('Incorrect Password!')).toBeVisible();
 });
 
-test('editPasswordFailed', async ({ page }) => {
+test('editEmailAndPasswordSuccess', async ({ page }) => {
   await goToProfile(page);
+
+  await page
+    .getByPlaceholder('newuser1@gmail.com', { exact: true })
+    .fill('update@gmail.com');
+  await page.getByRole('button', { name: 'Update', exact: true }).click();
+
+  await expect(page.getByText('Profile updated successfully!')).toBeVisible();
+  await expect(
+    page.getByPlaceholder('update@gmail.com', { exact: true })
+  ).toBeVisible();
 
   await page
     .getByRole('button', { name: 'Change Password', exact: true })
     .click();
-  await page.getByLabel('Password').fill('wfw');
+  await page.getByLabel('Password').fill('#Pass321');
   await page.getByRole('button', { name: 'Update', exact: true }).click();
-
-  await expect(page.getByText('Password must contain at least')).toBeVisible();
-});
-
-test('editPasswordVerifyFailed', async ({ page }) => {
-  await goToProfile(page);
-
-  await page
-    .getByRole('button', { name: 'Change Password', exact: true })
-    .click();
-  await page.getByLabel('Password').fill('#Pass123');
-  await page.getByRole('button', { name: 'Update', exact: true }).click();
-  await page.locator('#confirm-change-password').fill('wfw');
+  await page.locator('#confirm-change-password').fill('#Pass123');
   await page.getByRole('button', { name: 'Submit', exact: true }).click();
 
-  await expect(page.getByText('Password must contain at least')).toBeVisible();
+  await expect(page.getByText('Password changed successfully!')).toBeVisible();
 });

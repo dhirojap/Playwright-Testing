@@ -4,18 +4,9 @@ import { register } from './utils';
 
 async function goToAttendance(page: Page) {
   await page.goto('http://127.0.0.1:8000');
-  await page
-    .getByRole('navigation')
-    .getByRole('link', { name: 'Register', exact: true })
-    .click();
-  await register(page, correctUser);
 
-  await page
-    .getByRole('navigation')
-    .getByRole('link', { name: 'Login', exact: true })
-    .click();
-  await page.locator('#login-email').fill('newuser1@gmail.com');
-  await page.locator('#login-password').fill('#Pass123');
+  await page.locator('#login-email').fill('update@gmail.com');
+  await page.locator('#login-password').fill('#Pass321');
   await page.getByRole('button', { name: 'Login', exact: true }).click();
   await page.locator('#menu-button').click();
   await page.getByRole('menuitem', { name: 'Attendance', exact: true }).click();
@@ -120,6 +111,8 @@ test('takeAttendanceSuccess', async ({ page }) => {
   } as const;
   const formattedTime = checkInTime.toLocaleTimeString('en-US', {
     hour12: false,
+    hour: '2-digit',
+    minute: '2-digit',
   });
   const formatDate = new Intl.DateTimeFormat('en-US', OPTIONS);
   const parts = formatDate.formatToParts(checkInTime);
@@ -137,15 +130,12 @@ test('takeAttendanceSuccess', async ({ page }) => {
   await expect(
     page.getByRole('button', { name: 'Check In', exact: true })
   ).toBeHidden();
-  await expect(
-    page.getByRole('button', { name: 'Check Out', exact: true })
-  ).toBeVisible();
-
-  await page.getByRole('button', { name: 'Check Out', exact: true }).click();
-
-  await expect(page.getByText('Please wait at least 30 minutes')).toBeVisible();
 
   await page.getByRole('button', { name: 'Report', exact: true }).click();
+
+  await expect(
+    page.getByRole('cell', { name: `${formattedTime}` }).first()
+  ).toBeVisible();
 
   await expect(
     page
@@ -156,10 +146,19 @@ test('takeAttendanceSuccess', async ({ page }) => {
       .first()
   ).toBeVisible();
   await expect(
-    page.getByRole('cell', { name: `${formattedTime}` }).first()
-  ).toBeVisible();
-  await expect(
     page.getByRole('cell', { name: 'Not checked out' }).first()
   ).toBeVisible();
   await expect(page.getByRole('cell', { name: 'NULL' }).first()).toBeVisible();
+
+  await page
+    .getByRole('button', { name: 'Take Attendance', exact: true })
+    .click();
+
+  await expect(
+    page.getByRole('button', { name: 'Check Out', exact: true })
+  ).toBeVisible();
+
+  await page.getByRole('button', { name: 'Check Out', exact: true }).click();
+
+  await expect(page.getByText('Please wait at least 30 minutes')).toBeVisible();
 });

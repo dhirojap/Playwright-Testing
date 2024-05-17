@@ -1,6 +1,6 @@
 import { test, expect, Page } from '@playwright/test';
 import { register } from './utils';
-import { correctUser, wrongUser } from './__mocks__/user';
+import { correctUser, existUser, wrongUser } from './__mocks__/user';
 
 test('registerFailed', async ({ page }) => {
   await page.goto('http://127.0.0.1:8000');
@@ -34,16 +34,7 @@ test('registerExists', async ({ page }) => {
     .getByRole('navigation')
     .getByRole('link', { name: 'Register', exact: true })
     .click();
-  await register(page, correctUser);
-
-  await expect(page.getByText('Account successfully created.')).toBeVisible();
-
-  await page.goto('http://127.0.0.1:8000');
-  await page
-    .getByRole('navigation')
-    .getByRole('link', { name: 'Register', exact: true })
-    .click();
-  await register(page, correctUser);
+  await register(page, existUser);
 
   await expect(
     page.getByText('This email has already been taken.')
